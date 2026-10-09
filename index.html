@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khảo sát ý kiến về Phẩm màu thiên nhiên</title>
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --primary-light: #e8f5e9;
+      --dark: #263238;
+      --gray: #eceff1;
+      --text: #37474f;
+      --white: #ffffff;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f6f8; color: var(--text); margin: 0; padding: 20px; line-height: 1.5; }
+    .container { max-width: 850px; margin: 0 auto; background: var(--white); border-radius: var(--radius); box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; }
+    
+    /* Navigation Bar */
+    .tabs { display: flex; background: #e0e0e0; }
+    .tab-btn { flex: 1; padding: 15px; border: none; background: transparent; font-size: 16px; font-weight: 600; cursor: pointer; color: #555; transition: 0.3s; }
+    .tab-btn.active { background: var(--white); color: var(--primary); border-top: 4px solid var(--primary); }
+    
+    .panel { display: none; padding: 30px; }
+    .panel.active { display: block; }
+    
+    /* Header */
+    .header { text-align: center; border-bottom: 2px solid var(--primary-light); padding-bottom: 20px; margin-bottom: 25px; }
+    .header h1 { color: var(--primary); margin-bottom: 8px; font-size: 24px; text-transform: uppercase; }
+    .header p { color: #666; font-size: 14px; margin: 0; }
+
+    /* Form Styles */
+    .section-title { background: var(--primary-light); color: var(--primary); padding: 8px 14px; border-left: 5px solid var(--primary); border-radius: 4px; font-weight: 700; margin: 25px 0 15px; font-size: 16px; }
+    .q-card { margin-bottom: 20px; padding: 15px; background: #fafafa; border: 1px solid #e0e0e0; border-radius: 8px; }
+    .q-title { font-weight: 600; margin-bottom: 12px; color: var(--dark); font-size: 15px; }
+    .q-note { font-weight: normal; font-size: 13px; color: #888; font-style: italic; }
+    
+    .opt-label { display: block; margin-bottom: 8px; cursor: pointer; padding: 6px 10px; border-radius: 6px; transition: 0.2s; }
+    .opt-label:hover { background-color: var(--primary-light); }
+    .opt-label input { margin-right: 10px; accent-color: var(--primary); }
+    
+    textarea { width: 100%; height: 90px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical; outline: none; }
+    textarea:focus { border-color: var(--primary); box-shadow: 0 0 4px rgba(46,125,50,0.3); }
+
+    .btn-submit { background: var(--primary); color: var(--white); border: none; padding: 14px 28px; font-size: 16px; font-weight: 600; border-radius: 6px; cursor: pointer; display: block; width: 100%; margin-top: 25px; transition: 0.2s; }
+    .btn-submit:hover { background: #1b5e20; }
+
+    /* Admin Styles */
+    .admin-actions { display: flex; gap: 10px; margin-bottom: 20px; justify-content: flex-end; }
+    .btn-action { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .btn-export { background: #0288d1; color: white; }
+    .btn-clear { background: #e53935; color: white; }
+    .stats-card { background: #f1f8e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #c8e6c9; }
+    .stats-num { font-size: 28px; font-weight: bold; color: var(--primary); }
+    .table-resp { overflow-x: auto; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+    th { background: #f5f5f5; color: #333; }
+    tr:nth-child(even) { background-color: #fbfbfb; }
+    
+    .alert-success { background: #c8e6c9; color: #2e7d32; padding: 15px; border-radius: 6px; text-align: center; margin-bottom: 20px; display: none; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Thanh chuyển đổi -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('user')">📝 Người được khảo sát (Điền phiếu)</button>
+    <button class="tab-btn" onclick="switchTab('admin')">📊 Người khảo sát (Báo cáo & Thống kê)</button>
+  </div>
+
+  <!-- PHẦN 1: DÀNH CHO NGƯỜI ĐƯỢC KHẢO SÁT -->
+  <div id="panel-user" class="panel active">
+    <div class="header">
+      <h1>Khảo sát ý kiến phụ huynh</h1>
+      <p>Về việc sử dụng phẩm màu thiên nhiên cho trẻ em và gia đình</p>
+    </div>
+
+    <div id="success-msg" class="alert-success">
+      🎉 Cảm ơn Anh/Chị đã gửi phiếu khảo sát thành công!
+    </div>
+
+    <form id="survey-form">
+      <!-- Phần 1 -->
+      <div class="section-title">PHẦN 1: THÔNG TIN CHUNG</div>
+      <div class="q-card">
+        <div class="q-title">1. Anh/Chị hiện có con ở độ tuổi nào? <span class="q-note">(Có thể chọn nhiều đáp án)</span></div>
+        <label class="opt-label"><input type="checkbox" name="q1" value="Dưới 3 tuổi"> Dưới 3 tuổi</label>
+        <label class="opt-label"><input type="checkbox" name="q1" value="Từ 3 - 6 tuổi"> Từ 3 - 6 tuổi (Mầm non)</label>
+        <label class="opt-label"><input type="checkbox" name="q1" value="Từ 7 - 11 tuổi"> Từ 7 - 11 tuổi (Tiểu học)</label>
+        <label class="opt-label"><input type="checkbox" name="q1" value="Trên 12 tuổi"> Trên 12 tuổi (Trung học)</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">2. Người quyết định chính về thực phẩm/đồ ăn hàng ngày trong gia đình là ai?</div>
+        <label class="opt-label"><input type="radio" name="q2" value="Bố/Mẹ" required> Bố/Mẹ</label>
+        <label class="opt-label"><input type="radio" name="q2" value="Ông/Bà"> Ông/Bà</label>
+        <label class="opt-label"><input type="radio" name="q2" value="Cả gia đình cùng lựa chọn"> Cả gia đình cùng lựa chọn</label>
+      </div>
+
+      <!-- Phần 2 -->
+      <div class="section-title">PHẦN 2: NHẬN THỨC VỀ MÀU THIÊN NHIÊN VÀ MÀU TỔNG HỢP</div>
+      <div class="q-card">
+        <div class="q-title">3. Mức độ quan tâm của Anh/Chị về nguồn gốc màu sắc trong thực phẩm con sử dụng:</div>
+        <label class="opt-label"><input type="radio" name="q3" value="Rất quan tâm" required> Rất quan tâm (Luôn kiểm tra thành phần trước khi mua)</label>
+        <label class="opt-label"><input type="radio" name="q3" value="Thỉnh thoảng"> Thỉnh thoảng quan tâm (Chỉ kiểm tra khi mua thương hiệu mới)</label>
+        <label class="opt-label"><input type="radio" name="q3" value="Ít quan tâm"> Ít quan tâm (Chủ yếu chọn theo sở thích của con)</label>
+        <label class="opt-label"><input type="radio" name="q3" value="Không quan tâm"> Không quan tâm</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">4. Anh/Chị có nhận biết được sự khác biệt giữa màu tự nhiên và màu hóa học không?</div>
+        <label class="opt-label"><input type="radio" name="q4" value="Phân biệt rất rõ" required> Phân biệt rất rõ</label>
+        <label class="opt-label"><input type="radio" name="q4" value="Nhận biết vài loại cơ bản"> Nhận biết được một vài loại cơ bản</label>
+        <label class="opt-label"><input type="radio" name="q4" value="Không phân biệt được"> Không phân biệt được</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">5. Mối lo ngại lớn nhất khi cho con dùng phẩm màu tổng hợp? <span class="q-note">(Chọn tối đa 2 lựa chọn)</span></div>
+        <label class="opt-label"><input type="checkbox" name="q5" value="Tăng động, giảm tập trung" onchange="limitCheck(this, 2)"> Tăng động, giảm tập trung ở trẻ</label>
+        <label class="opt-label"><input type="checkbox" name="q5" value="Dị ứng da, ngứa" onchange="limitCheck(this, 2)"> Dị ứng, dị ứng da, ngứa</label>
+        <label class="opt-label"><input type="checkbox" name="q5" value="Độc tố gan/thận/ung thư" onchange="limitCheck(this, 2)"> Tích tụ độc tố gây hại gan/thận hoặc nguy cơ ung thư</label>
+        <label class="opt-label"><input type="checkbox" name="q5" value="Ảnh hưởng hệ tiêu hóa" onchange="limitCheck(this, 2)"> Ảnh hưởng hệ tiêu hóa</label>
+        <label class="opt-label"><input type="checkbox" name="q5" value="Không quá lo ngại" onchange="limitCheck(this, 2)"> Không quá lo ngại</label>
+      </div>
+
+      <!-- Phần 3 -->
+      <div class="section-title">PHẦN 3: THÓI QUEN SỬ DỤNG VÀ LỰA CHỌN PHẨM MÀU TỰ NHIÊN</div>
+      <div class="q-card">
+        <div class="q-title">6. Ở nhà, Anh/Chị có thường xuyên tự chế biến đồ ăn tạo màu từ nguyên liệu tự nhiên?</div>
+        <label class="opt-label"><input type="radio" name="q6" value="Rất thường xuyên" required> Rất thường xuyên (Hàng tuần)</label>
+        <label class="opt-label"><input type="radio" name="q6" value="Thỉnh thoảng"> Thỉnh thoảng (Khi làm bánh, nấu xôi dịp lễ/tết)</label>
+        <label class="opt-label"><input type="radio" name="q6" value="Hiếm khi"> Hiếm khi (Do tốn thời gian/chế biến phức tạp)</label>
+        <label class="opt-label"><input type="radio" name="q6" value="Không bao giờ"> Không bao giờ</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">7. Yếu tố cản trở Anh/Chị nhiều nhất khi tự làm hoặc mua sản phẩm dùng màu thiên nhiên?</div>
+        <label class="opt-label"><input type="radio" name="q7" value="Màu dễ xỉn" required> Màu sắc không bắt mắt/dễ bị xỉn màu khi nấu</label>
+        <label class="opt-label"><input type="radio" name="q7" value="Bảo quản ngắn"> Thời gian bảo quản ngắn, nhanh hỏng</label>
+        <label class="opt-label"><input type="radio" name="q7" value="Giá thành cao"> Giá thành sản phẩm cao hơn</label>
+        <label class="opt-label"><input type="radio" name="q7" value="Tốn thời gian"> Tốn nhiều thời gian chế biến</label>
+        <label class="opt-label"><input type="radio" name="q7" value="Khó mua nguyên liệu"> Khó mua được nguyên liệu tươi/sạch</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">8. Anh/Chị sẵn sàng trả mức giá cao hơn bao nhiêu cho sản phẩm 100% màu tự nhiên an toàn?</div>
+        <label class="opt-label"><input type="radio" name="q8" value="Không muốn trả thêm" required> Khái niệm tương đương (Không muốn trả thêm)</label>
+        <label class="opt-label"><input type="radio" name="q8" value="Cao hơn 10% - 20%"> Cao hơn 10% - 20%</label>
+        <label class="opt-label"><input type="radio" name="q8" value="Cao hơn 20% - 50%"> Cao hơn 20% - 50%</label>
+        <label class="opt-label"><input type="radio" name="q8" value="Sẵn sàng trả gấp đôi"> Sẵn sàng trả gấp đôi nếu có chứng nhận an toàn rõ ràng</label>
+      </div>
+
+      <!-- Phần 4 -->
+      <div class="section-title">PHẦN 4: ĐỀ XUẤT & MONG MUỐN</div>
+      <div class="q-card">
+        <div class="q-title">9. Anh/Chị mong muốn dòng sản phẩm màu tự nhiên nào xuất hiện nhiều hơn? <span class="q-note">(Chọn tối đa 3 lựa chọn)</span></div>
+        <label class="opt-label"><input type="checkbox" name="q9" value="Bánh kẹo, thạch, kem" onchange="limitCheck(this, 3)"> Bánh kẹo, thạch, kem cho trẻ em</label>
+        <label class="opt-label"><input type="checkbox" name="q9" value="Nước giải khát, sữa hạt" onchange="limitCheck(this, 3)"> Nước giải khát, sữa hạt</label>
+        <label class="opt-label"><input type="checkbox" name="q9" value="Bột màu tự nhiên sấy khô" onchange="limitCheck(this, 3)"> Bột màu tự nhiên sấy khô đóng gói sẵn</label>
+        <label class="opt-label"><input type="checkbox" name="q9" value="Mỹ phẩm hữu cơ cho bé" onchange="limitCheck(this, 3)"> Son môi, mỹ phẩm/sữa tắm hữu cơ cho bé</label>
+        <label class="opt-label"><input type="checkbox" name="q9" value="Đồ chơi/Màu vẽ an toàn" onchange="limitCheck(this, 3)"> Đồ chơi/Màu vẽ an toàn từ thiên nhiên cho bé</label>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title">10. Ý kiến đóng góp khác của Anh/Chị để các sản phẩm màu thiên nhiên phổ biến hơn:</div>
+        <textarea name="q10" placeholder="Nhập ý kiến hoặc đề xuất của Anh/Chị tại đây..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-submit">Gửi Phiếu Khảo Sát</button>
+    </form>
+  </div>
+
+  <!-- PHẦN 2: DÀNH CHO NGƯỜI KHẢO SÁT (ADMIN) -->
+  <div id="panel-admin" class="panel">
+    <div class="header">
+      <h1>Bảng Quản Lý Khảo Sát</h1>
+      <p>Tổng hợp kết quả phản hồi của phụ huynh theo thời gian thực</p>
+    </div>
+
+    <div class="admin-actions">
+      <button class="btn-action btn-export" onclick="exportToCSV()">📥 Xuất file Excel (CSV)</button>
+      <button class="btn-action btn-clear" onclick="clearData()">🗑️ Xóa toàn bộ dữ liệu</button>
+    </div>
+
+    <div class="stats-card">
+      <div>Tổng số phiếu đã thu thập:</div>
+      <div class="stats-num" id="total-resp">0</div>
+    </div>
+
+    <h3>Danh sách câu trả lời chi tiết</h3>
+    <div class="table-resp">
+      <table>
+        <thead>
+          <tr>
+            <th>Thời gian</th>
+            <th>Độ tuổi con (C1)</th>
+            <th>Người quyết định (C2)</th>
+            <th>Mức độ QT (C3)</th>
+            <th>Phân biệt màu (C4)</th>
+            <th>Lo ngại nhất (C5)</th>
+            <th>Tần suất tự làm (C6)</th>
+            <th>Rào cản (C7)</th>
+            <th>Giá sẵn sàng trả (C8)</th>
+            <th>SP mong muốn (C9)</th>
+            <th>Góp ý (C10)</th>
+          </tr>
+        </thead>
+        <tbody id="response-tbody">
+          <!-- Nội dung bảng sẽ tự động render bằng JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Chuyển Tab
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    
+    if (tab === 'user') {
+      document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+      document.getElementById('panel-user').classList.add('active');
+    } else {
+      document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+      document.getElementById('panel-admin').classList.add('active');
+      renderAdminData();
+    }
+  }
+
+  // Giới hạn số lượng checkbox được chọn
+  function limitCheck(checkbox, max) {
+    const name = checkbox.name;
+    const checked = document.querySelectorAll(`input[name="${name}"]:checked`);
+    if (checked.length > max) {
+      alert(`Anh/Chị chỉ được chọn tối đa ${max} lựa chọn cho câu hỏi này!`);
+      checkbox.checked = false;
+    }
+  }
+
+  // Lấy dữ liệu từ LocalStorage
+  function getResponses() {
+    return JSON.parse(localStorage.getItem('survey_responses') || '[]');
+  }
+
+  // Lưu câu trả lời
+  document.getElementById('survey-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const getValues = (name) => formData.getAll(name).join('; ');
+
+    const newRecord = {
+      date: new Date().toLocaleString('vi-VN'),
+      q1: getValues('q1') || 'Không chọn',
+      q2: formData.get('q2') || '',
+      q3: formData.get('q3') || '',
+      q4: formData.get('q4') || '',
+      q5: getValues('q5') || 'Không có',
+      q6: formData.get('q6') || '',
+      q7: formData.get('q7') || '',
+      q8: formData.get('q8') || '',
+      q9: getValues('q9') || 'Không có',
+      q10: formData.get('q10') || 'Không có'
+    };
+
+    const list = getResponses();
+    list.unshift(newRecord);
+    localStorage.setItem('survey_responses', JSON.stringify(list));
+
+    // Hiển thị thông báo và cuộn lên trên
+    const msg = document.getElementById('success-msg');
+    msg.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.reset();
+
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+  });
+
+  // Hiển thị dữ liệu lên trang Admin
+  function renderAdminData() {
+    const list = getResponses();
+    document.getElementById('total-resp').innerText = list.length;
+    const tbody = document.getElementById('response-tbody');
+    tbody.innerHTML = '';
+
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: #888;">Chưa có dữ liệu khảo sát nào.</td></tr>`;
+      return;
+    }
+
+    list.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.date}</td>
+        <td>${r.q1}</td>
+        <td>${r.q2}</td>
+        <td>${r.q3}</td>
+        <td>${r.q4}</td>
+        <td>${r.q5}</td>
+        <td>${r.q6}</td>
+        <td>${r.q7}</td>
+        <td>${r.q8}</td>
+        <td>${r.q9}</td>
+        <td>${r.q10}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // Xuất file CSV (Hỗ trợ mở bằng Excel chuẩn tiếng Việt)
+  function exportToCSV() {
+    const list = getResponses();
+    if (list.length === 0) {
+      alert('Không có dữ liệu để xuất file!');
+      return;
+    }
+
+    const headers = ['Thời gian', 'Độ tuổi con', 'Người quyết định', 'Mức độ quan tâm', 'Phân biệt màu', 'Mối lo ngại', 'Tần suất tự làm', 'Rào cản', 'Giá sẵn sàng trả', 'Dòng SP mong muốn', 'Góp ý'];
+    let csvContent = '\uFEFF'; // BOM giúp Excel đọc đúng dấu Tiếng Việt UTF-8
+    csvContent += headers.map(h => `"${h}"`).join(',') + '\n';
+
+    list.forEach(r => {
+      const row = [r.date, r.q1, r.q2, r.q3, r.q4, r.q5, r.q6, r.q7, r.q8, r.q9, r.q10];
+      csvContent += row.map(v => `"${(v || '').replace(/"/g, '""')}"`).join(',') + '\n';
+    });
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Ket_qua_khao_sat_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Xóa toàn bộ dữ liệu
+  function clearData() {
+    if (confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu khảo sát đã lưu?')) {
+      localStorage.removeItem('survey_responses');
+      renderAdminData();
+    }
+  }
+</script>
+
+</body>
+</html>
